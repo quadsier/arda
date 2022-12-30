@@ -526,7 +526,7 @@ if __name__ == "__main__":
     sr3 = SR3(device, img_size=img_size, LR_size=LR_size, loss_type='l1', 
                 dataloader=dataloader, testloader=testloader, schedule_opt=schedule_opt, 
                 save_path='./SR3.pt', load_path='./SR3.pt', load=False, inner_channel=96, 
-                norm_groups=16, channel_mults=(1, 2, 2, 2), dropout=0.2, res_blocks=2, lr=1e-5, distributed=False)
+                norm_groups=16, channel_mults=(1, 2, 2, 2), dropout=0.2, res_blocks=2, lr=1e-5, distributed=True)
     sr3.train(epoch=10000, verbose=1000)
     
     # torch.onnx.export(sr3,"sr3.onnx", input_names="input", output_names="output")
