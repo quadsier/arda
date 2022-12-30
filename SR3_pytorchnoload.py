@@ -489,7 +489,7 @@ class SR3():
 
 
 if __name__ == "__main__":
-    batch_size = 2
+    batch_size = 64
     LR_size = 32
     img_size = 128
     root = './images'
@@ -521,12 +521,12 @@ if __name__ == "__main__":
 
     cuda = torch.cuda.is_available()
     device = torch.device("cuda" if cuda else "cpu")
-    schedule_opt = {'schedule':'linear', 'n_timestep':2000, 'linear_start':2e-4, 'linear_end':0.05}
+    schedule_opt = {'schedule':'linear', 'n_timestep':1500, 'linear_start':2e-4, 'linear_end':0.05}
 
     sr3 = SR3(device, img_size=img_size, LR_size=LR_size, loss_type='l1', 
                 dataloader=dataloader, testloader=testloader, schedule_opt=schedule_opt, 
                 save_path='./SR3.pt', load_path='./SR3.pt', load=False, inner_channel=96, 
                 norm_groups=16, channel_mults=(1, 2, 2, 2), dropout=0.2, res_blocks=2, lr=1e-5, distributed=True)
-    sr3.train(epoch=10000, verbose=1000)
+    sr3.train(epoch=5000, verbose=200)
     
     # torch.onnx.export(sr3,"sr3.onnx", input_names="input", output_names="output")
