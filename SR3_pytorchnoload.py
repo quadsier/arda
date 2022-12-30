@@ -520,7 +520,7 @@ if __name__ == "__main__":
     # print("Example train images were saved")
 
     cuda = torch.cuda.is_available()
-    device = torch.device("cuda:0,1" if cuda else "cpu")
+    device = torch.device("cuda" if cuda else "cpu")
     schedule_opt = {'schedule':'linear', 'n_timestep':2000, 'linear_start':2e-4, 'linear_end':0.05}
 
     sr3 = SR3(device, img_size=img_size, LR_size=LR_size, loss_type='l1', 
