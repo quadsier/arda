@@ -4,7 +4,6 @@ from torch.nn import init
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
-from torchviz import make_dot
 from einops import rearrange, repeat
 from tqdm import tqdm
 from functools import partial
@@ -12,7 +11,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import numpy as np
 import math, os, copy
-
+import time
 
 """
     Define U-net Architecture:
@@ -431,15 +430,17 @@ class SR3():
                 test_imgs = next(iter(self.testloader))
                 test_imgs = test_imgs[0].to(self.device)
                 b, c, h, w = test_imgs.shape
-
+                tic = time.time()
                 with torch.no_grad():
                     val_loss = self.sr3(test_imgs)
                     val_loss = val_loss.sum() / int(b*c*h*w)
                 self.sr3.train()
-
+                print("time for inference " + str(time.time() - tic))
+                tic = time.time()
                 train_loss = train_loss / len(self.dataloader)
                 print(f'Epoch: {i+1} / loss:{train_loss:.3f} / val_loss:{val_loss.item():.3f}')
-
+                print("time for val loss calc " + str(int(time.time() - tic)))
+                tic = time.time()
                 # Save example of test images to check training
                 plt.figure(figsize=(15,10))
                 plt.subplot(1,2,1)
@@ -453,9 +454,9 @@ class SR3():
                 plt.title("Super-Resolution Results")
                 plt.imshow(np.transpose(torchvision.utils.make_grid(self.test(fixed_imgs).detach().cpu(), 
                                                                     nrow=2, padding=1, normalize=True),(1,2,0)))
-                plt.savefig('SuperResolution_Result.jpg')
+                plt.savefig(f"SuperResolution_Result{i+1}.jpg")
                 plt.close()
-
+                print("time for matplotlib " + str(time.time() - tic))
                 # Save model weight
                 self.save(self.save_path)
 
@@ -491,8 +492,8 @@ if __name__ == "__main__":
     batch_size = 1
     LR_size = 32
     img_size = 128
-    root = r'H:\My Drive\Colab Notebooks\arda'
-    testroot = r'H:\My Drive\Colab Notebooks\arda'
+    root = './images'
+    testroot = './images'
 
     transforms_ = transforms.Compose([transforms.Resize(img_size), transforms.ToTensor(), 
                                         transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5))])
@@ -519,13 +520,13 @@ if __name__ == "__main__":
     # print("Example train images were saved")
 
     cuda = torch.cuda.is_available()
-    device = torch.device("cuda:2" if cuda else "cpu")
+    device = torch.device("cuda" if cuda else "cpu")
     schedule_opt = {'schedule':'linear', 'n_timestep':2000, 'linear_start':2e-4, 'linear_end':0.05}
 
     sr3 = SR3(device, img_size=img_size, LR_size=LR_size, loss_type='l1', 
                 dataloader=dataloader, testloader=testloader, schedule_opt=schedule_opt, 
-                save_path='./SR3.pt', load_path='./SR3.pt', load=False, inner_channel=96, 
+                save_path='./SR3.pt', load_path='./SR3.pt', load=True, inner_channel=96, 
                 norm_groups=16, channel_mults=(1, 2, 2, 2), dropout=0.2, res_blocks=2, lr=1e-5, distributed=False)
-    sr3.train(epoch=1000, verbose=100)
+    sr3.train(epoch=10000, verbose=1000)
     
     # torch.onnx.export(sr3,"sr3.onnx", input_names="input", output_names="output")
