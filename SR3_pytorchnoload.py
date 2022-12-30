@@ -489,7 +489,7 @@ class SR3():
 
 
 if __name__ == "__main__":
-    batch_size = 1
+    batch_size = 2
     LR_size = 32
     img_size = 128
     root = './images'
