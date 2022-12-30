@@ -14,3 +14,4 @@ Trained to implement Super Resolution task of 32x32 to 128x128 resolution
 * Total training epoch = 250
 * Random images were selected from the above CelebA-HQ and resized to 32x32 low resolution inputs to test the trained model
 <img src="https://user-images.githubusercontent.com/48702949/136547491-cb8dc04c-c52e-446d-84ee-c315558581a4.jpg" width="866" height="123"/>
+"# arda" 
